@@ -129,4 +129,16 @@ De esta forma si lanzo posteriormente foreman start web nuestra aplicación se e
 No he llegado a combinar las dos aplicaciones, solamente probé foreman.
 
 
+## Ejercicio 8: Preparar la aplicación con la que se ha venido trabajando hasta este momento para ejecutarse en un PaaS, el que se haya elegido.
+
+Para este ejercicio se ha decidido preparar la aplicación para desplegarla en Openshift.
+Para ello debemos modificar el archivo app.js que es el que contiene el código de la aplicación y en el que indicamos la IP que queremos que escuche.
+
+El código nuevo añadido es el siguiente:
+
+		var server_ip_address = process.env.OPENSHIFT_NODEJS_IP || '0.0.0.0';
+		app.set('port', (process.env.PORT || process.env.OPENSHIFT_NODEJS_PORT || 5000));
+
+De esta forma estamos creando una variable para que escuche desde la IP definida por OPENSHIFT_NODEJS_IP o en caso contrario de 0.0.0.0, que hace referencia a todas las IPs.
+
 
