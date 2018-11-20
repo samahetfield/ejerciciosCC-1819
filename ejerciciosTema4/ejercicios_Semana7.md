@@ -57,3 +57,76 @@ Con esto, ya solamente nos quedará ejecutar el siguiente comando y veremos cóm
 	sudo chef-solo -c ejercicio2/solo.rb
 
 Hecho esto ya tendremos instalado nuestro editor, nginx y el directorio con el archivo Tareas.
+
+# Ejercicio 3. Escribir en YAML la siguiente estructura de datos en JSON
+
+	{ "uno": "dos",
+	  "tres": [ 4, 5, "Seis", { "siete": 8, "nueve": [ 10, 11 ] } ] }
+
+Se nos ha proporcionado una estructura de datos en JSON que debemos escribir en YAML. Para aprender el uso básico de este lenguaje se ha seguido este [tutorial](https://pharalax.com/blog/yaml-introduccion-al-lenguaje-yaml/).
+
+La estructura en YAML quedaría de la siguiente forma:
+	
+	uno: dos
+	tres: 
+		- 4
+		- 5
+		- Seis
+		- Siete: 8
+		- Nueve:
+			- 10
+			- 11
+
+# Ejercicio 4. Provisionar una máquina virtual en algún entorno con los que trabajemos habitualmente usando Salt.
+
+Para este ejercicio vamos a instalar salt-ssh en nuestra máquina virtual.
+Lo primero que debemos hacer es instalar python y [pip](https://pip.pypa.io/en/stable/installing/#installing-with-get-pip-py) en el caso de que no estén instalados.
+Para ello haremos:
+	
+	sudo apt install python
+	curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+	python get-pip.py
+
+Instalado, pasaremos a instalar Salt-ssh.
+
+Primero vamos a crear un directorio y entraremos dentro de él.
+	
+	mkdir salt-dir
+	cd salt-dir
+
+Dentro del directorio realizaremos la instalación de virtualenv y de salt. Devemos instalar virtualenv si no lo tenemos.
+
+	virtualenv venv
+	source venv/bin/activate
+	pip install salt-ssh
+
+Con esto ya tendremos instalado salt-ssh en ese directorio y podremos activarlo cuando queramos accediendo al directorio ```salt-dir``` creado y ejecutando:
+	
+	source venv/bin/activate.
+
+Una vez instalado, pasaremos a la configuración de salt para la conexión.
+Primerp crearemos el archivo Roster dentro del directorio **salt-dir**. 
+	
+	touch salt-dir/roster
+
+En este tendremos que introducir la IP de la conexión y el usuario.
+	
+	managed:
+		IP: xxx.xxx.xx.xx
+		user: samaniego (en mi caso)
+
+Seguidamente crearemos el Saltfile en el directorio **salt-dir**
+
+	touch salt-dir/Saltfile
+
+En este archivo indicamos dónde se encuentran los archivos roster, log y de configuración:
+
+	salt-ssh:
+		roster_file: /home/samaniego/salt-ssh/roster 
+		config_dir: /home/samaniego/salt-ssh
+		log_file: /home/samaniego/salt-ssh/log.txt 
+
+Por último pasaremos a probar la conexión con:
+
+	salt-ssh -i '*' test.ping
+
