@@ -54,6 +54,53 @@ Una vez conectados, instalaremos nginx:
 
 Para comprobar que se ha instalado correctamente, accederemos a la IP que nos ha dado la máquina virtual y nos debería de salir la pantalla de bienvenida de **nginx**.
 
+# 2. Crear una instancia de una máquina virtual Debian y provisionarla usando alguna de las aplicaciones vistas en el tema sobre herramientas de aprovisionamiento
+
+Para este ejercicio lo primero que haremos será [instalar Azure-CLI 2.0](https://docs.microsoft.com/es-es/cli/azure/install-azure-cli-apt?view=azure-cli-latest).
+
+Será necesario crear un grupo de recursos, en el que alojar la máquina, que haremos con el siguiente comando:
+
+	az group create -l westeurope -n CCGroupEU
+
+Una vez lo tengamos instalado, tendremos que hacer login nuevamente, de la misma forma que lo hicimos en el anterior ejercicio.
+Seguidamente, para poder usar **jq** y aprovecharnos de las ventajas que nos da las respuestas en JSON, tendremos que instalarlo con la siguiente orden: ``` sudo apt install jq ```.
+Una vez instalado, ya podremos ver las imágenes filtradas que deseemos. Como lo que queremos son imágenes Debian, ejecutaremos el siguiente comando:
+
+	sergio@sergiosama:~$ az vm image list | jq '.[] | select( .offer | contains("ebian"))'
+	You are viewing an offline list of images, use --all to retrieve an up-to-date list
+	{
+	  "offer": "Debian",
+	  "publisher": "credativ",
+	  "sku": "8",
+	  "urn": "credativ:Debian:8:latest",
+	  "urnAlias": "Debian",
+	  "version": "latest"
+	}
+
+Como vemos, el Alias es Debian, por lo que podremos instalar la imagen usando su alias con el siguiente comando:
+
+	az vm create -g CCGroupEU -n vmEjer2 --image Debian
+
+Hecho esto ya tendremos nuestro máquina creada.
+Ahora, como el provisionamiento se va a realizar con Ansible, lo que haremos será añadir su IP pública al archivo ```/etc/ansible/hosts ```
+Y ejecutaremos un playbook, que nos instalará algunos paquetes y clonará nuestro repositorio de GitHub (parecido al playbook del Hito2, pero sin lanzar la aplicación).
 
 
+	sergio@sergiosama:~$ ansible-playbook ansible_Ejer.yml 
+	PLAY [vmEjercicios] ****************************************************************************************
+	TASK [Gathering Facts] *************************************************************************************
+	ok: [40.68.22.99]		
+	TASK [Install packages] ************************************************************************************
+	ok: [40.68.22.99]
+	TASK [clone repository] ************************************************************************************
+	ok: [40.68.22.99]
+	TASK [Install dependences] *********************************************************************************
+	ok: [40.68.22.99]
+	PLAY RECAP *************************************************************************************************
+	40.68.22.99                : ok=4    changed=0    unreachable=0    failed=0   
 
+Hecho esto, podremos conectarnos vía ssh y comprobar que se ha clonado el repositorio:
+
+	sergio@vmEjer2:~$ ls /home/PersonalCC/
+	bin   infoSerie.js  package.json  provision  routes         SerieService.js
+	docs  LICENSE       Procfile      README.md  SerieClass.js  test
